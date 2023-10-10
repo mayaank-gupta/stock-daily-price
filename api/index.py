@@ -27,8 +27,15 @@ def get_stock_data():
                 stock = yf.Ticker(symbol)
                 data = stock.history(period="1d")  # You can adjust the period as needed
                 close_price = data['Close'].values[0] if not data.empty else None
+                open_price = data['Open'].values[0] if not data.empty else None
+                day_change = data['Close'].values[0] - data['Open'].values[0] if not data.empty else None
+                day_change_percentage = (day_change / data['Open'].values[0]) * 100 if not data.empty else None
                 modified_string  = symbol.replace(".NS", "")
-                stock_data[modified_string] = "{:.2f}".format(close_price)
+                stock_data[modified_string] = {
+                  'open': "{:.2f}".format(open_price),
+                  'close': "{:.2f}".format(close_price),
+                  'day_change_percentage': "{:.2f}".format(day_change_percentage)
+                }
             except Exception as e:
                 stock_data[symbol] = {'error': str(e)}
 
