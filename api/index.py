@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import yfinance as yf
+import datetime
 
 app = Flask(__name__)
 
@@ -27,7 +28,10 @@ def get_stock_data():
             try:
                 stock = yf.Ticker(symbol)
                 if date:
-                    data = stock.history(start=date, end=None)
+                    start_date = datetime.datetime.strptime(date, "%Y-%m-%d")
+                    end_date = start_date + datetime.timedelta(days=1)
+                    data = stock.history(start=date, end=end_date)
+                    lastest_data = stock.history(period="1d")
                 else:
                     data = stock.history(period="1d")
                 close_price = data['Close'].values[0] if not data.empty else None
@@ -35,13 +39,18 @@ def get_stock_data():
                 day_change = data['Close'].values[0] - data['Open'].values[0] if not data.empty else None
                 day_change_percentage = (day_change / data['Open'].values[0]) * 100 if not data.empty else None
                 modified_string  = symbol.replace(".NS", "")
-                latest_price = data['Close'].values[-1] if not data.empty else None
-                stock_data[modified_string] = {
-                  'open': "{:.2f}".format(open_price),
-                  'close': "{:.2f}".format(close_price),
-                  'day_change_percentage': "{:.2f}".format(day_change_percentage),
-                  'latest_price': "{:.2f}".format(latest_price),
-                }
+                if date:
+                    latest_price = lastest_data['Close'].values[0] if not data.empty else None
+                    stock_data[modified_string] = {
+                    'date_price': "{:.2f}".format(close_price),
+                    'latest_price': "{:.2f}".format(latest_price)
+                    }
+                else:
+                    stock_data[modified_string] = {
+                    'open': "{:.2f}".format(open_price),
+                    'close': "{:.2f}".format(close_price),
+                    'day_change_percentage': "{:.2f}".format(day_change_percentage)
+                    }
             except Exception as e:
                 stock_data[symbol] = {'error': str(e)}
 
