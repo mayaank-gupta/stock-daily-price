@@ -19,13 +19,17 @@ def get_stock_data():
 
         # Retrieve the array of stock symbols from the JSON data
         symbols = data['symbols']
+        date = data.get('date', None)
 
         # Fetch data from Yahoo Finance for each symbol
         stock_data = {}
         for symbol in symbols:
             try:
                 stock = yf.Ticker(symbol)
-                data = stock.history(period="1d")  # You can adjust the period as needed
+                if date:
+                    data = stock.history(start=date, end=None)
+                else:
+                    data = stock.history(period="1d")
                 close_price = data['Close'].values[0] if not data.empty else None
                 open_price = data['Open'].values[0] if not data.empty else None
                 day_change = data['Close'].values[0] - data['Open'].values[0] if not data.empty else None
