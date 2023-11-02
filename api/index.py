@@ -43,7 +43,8 @@ def get_stock_data():
                     latest_price = lastest_data['Close'].values[0] if not data.empty else None
                     stock_data[modified_string] = {
                     'date_price': "{:.2f}".format(close_price),
-                    'latest_price': "{:.2f}".format(latest_price)
+                    'latest_price': "{:.2f}".format(latest_price),
+                    'change_percentage': "{:.2f}".format(((latest_price - close_price)/close_price) * 100)
                     }
                 else:
                     stock_data[modified_string] = {
