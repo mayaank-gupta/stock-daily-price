@@ -35,10 +35,12 @@ def get_stock_data():
                 day_change = data['Close'].values[0] - data['Open'].values[0] if not data.empty else None
                 day_change_percentage = (day_change / data['Open'].values[0]) * 100 if not data.empty else None
                 modified_string  = symbol.replace(".NS", "")
+                latest_price = data['Close'].values[-1] if not data.empty else None
                 stock_data[modified_string] = {
                   'open': "{:.2f}".format(open_price),
                   'close': "{:.2f}".format(close_price),
-                  'day_change_percentage': "{:.2f}".format(day_change_percentage)
+                  'day_change_percentage': "{:.2f}".format(day_change_percentage),
+                  'latest_price': "{:.2f}".format(latest_price),
                 }
             except Exception as e:
                 stock_data[symbol] = {'error': str(e)}
