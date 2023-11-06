@@ -27,11 +27,16 @@ def get_stock_data():
         for symbol in symbols:
             try:
                 stock = yf.Ticker(symbol)
+                third_trading_day = None
+                sixth_trading_day = None
+
                 if date:
                     start_date = datetime.datetime.strptime(date, "%Y-%m-%d")
-                    end_date = start_date + datetime.timedelta(days=1)
+                    end_date = start_date + datetime.timedelta(days=15)
                     data = stock.history(start=date, end=end_date)
                     lastest_data = stock.history(period="1d")
+                    third_trading_day = data.iloc[2]  # 0-based indexing, so 2 means the 3rd trading day
+                    sixth_trading_day = data.iloc[5]
                 else:
                     data = stock.history(period="1d")
                 close_price = data['Close'].values[0] if not data.empty else None
@@ -41,10 +46,14 @@ def get_stock_data():
                 modified_string  = symbol.replace(".NS", "")
                 if date:
                     latest_price = lastest_data['Close'].values[0] if not data.empty else None
+                    third_day_close = third_trading_day['Close']
+                    sixth_trading_day = sixth_trading_day['Close']
                     stock_data[modified_string] = {
-                    'date_price': "{:.2f}".format(close_price),
-                    'latest_price': "{:.2f}".format(latest_price),
-                    'change_percentage': "{:.2f}".format(((latest_price - close_price)/close_price) * 100)
+                        'date_price': "{:.2f}".format(close_price),
+                        'latest_price': "{:.2f}".format(latest_price),
+                        'change_percentage': "{:.2f}".format(((latest_price - close_price)/close_price) * 100),
+                        'third_trading_day': "{:.2f}".format(third_day_close),
+                        'sixth_trading_day': "{:.2f}".format(sixth_trading_day),
                     }
                 else:
                     stock_data[modified_string] = {
