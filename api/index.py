@@ -36,7 +36,7 @@ def get_stock_data():
                     data = stock.history(start=date, end=end_date)
                     lastest_data = stock.history(period="1d")
 
-                    if len(data) >= 5:
+                    if len(data) >= 6:
                         third_trading_day = data.iloc[2]  # 0-based indexing, so 2 means the 3rd trading day
                         sixth_trading_day = data.iloc[5]
                     else:
