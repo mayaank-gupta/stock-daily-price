@@ -35,8 +35,13 @@ def get_stock_data():
                     end_date = start_date + datetime.timedelta(days=15)
                     data = stock.history(start=date, end=end_date)
                     lastest_data = stock.history(period="1d")
-                    third_trading_day = data.iloc[2]  # 0-based indexing, so 2 means the 3rd trading day
-                    sixth_trading_day = data.iloc[5]
+
+                    if len(data) >= 5:
+                        third_trading_day = data.iloc[2]  # 0-based indexing, so 2 means the 3rd trading day
+                        sixth_trading_day = data.iloc[5]
+                    else:
+                        third_trading_day = None
+                        sixth_trading_day = None
                 else:
                     data = stock.history(period="1d")
                 close_price = data['Close'].values[0] if not data.empty else None
@@ -46,14 +51,14 @@ def get_stock_data():
                 modified_string  = symbol.replace(".NS", "")
                 if date:
                     latest_price = lastest_data['Close'].values[0] if not data.empty else None
-                    third_day_close = third_trading_day['Close']
-                    sixth_trading_day = sixth_trading_day['Close']
+                    third_day_close = third_trading_day['Close'] if third_trading_day is not None else None
+                    sixth_trading_day = sixth_trading_day['Close'] if sixth_trading_day is not None else None
                     stock_data[modified_string] = {
                         'date_price': "{:.2f}".format(close_price),
                         'latest_price': "{:.2f}".format(latest_price),
                         'change_percentage': "{:.2f}".format(((latest_price - close_price)/close_price) * 100),
-                        'third_trading_day': "{:.2f}".format(third_day_close),
-                        'sixth_trading_day': "{:.2f}".format(sixth_trading_day),
+                        'third_trading_day': "{:.2f}".format(third_day_close) if third_day_close is not None else None,
+                        'sixth_trading_day': "{:.2f}".format(sixth_trading_day) if sixth_trading_day is not None else None,
                     }
                 else:
                     stock_data[modified_string] = {
