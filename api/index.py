@@ -60,6 +60,17 @@ def get_stock_data():
                         'third_trading_day': "{:.2f}".format(third_day_close) if third_day_close is not None else None,
                         'sixth_trading_day': "{:.2f}".format(sixth_trading_day) if sixth_trading_day is not None else None,
                     }
+                    # Calculate percentage change for 'third_trading_day' if it's not None
+                    if stock_data[modified_string]['third_trading_day'] is not None:
+                        stock_data[modified_string]['third_day_change_percentage'] = "{:.2f}".format(
+                            ((third_day_close - close_price) / close_price) * 100
+                        )
+
+                    # Calculate percentage change for 'sixth_trading_day' if it's not None
+                    if stock_data[modified_string]['sixth_trading_day'] is not None:
+                        stock_data[modified_string]['sixth_day_change_percentage'] = "{:.2f}".format(
+                            ((sixth_trading_day - close_price) / close_price) * 100
+                        )
                 else:
                     stock_data[modified_string] = {
                     'open': "{:.2f}".format(open_price),
