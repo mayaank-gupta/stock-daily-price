@@ -29,6 +29,7 @@ def get_stock_data():
                 stock = yf.Ticker(symbol)
                 third_trading_day = None
                 sixth_trading_day = None
+                next_day = None
 
                 if date:
                     start_date = datetime.datetime.strptime(date, "%Y-%m-%d")
@@ -36,15 +37,14 @@ def get_stock_data():
                     data = stock.history(start=date, end=end_date)
                     lastest_data = stock.history(period="1d")
 
+                    if len(data) >= 2:
+                        next_day = data.iloc[1]
+
                     if len(data) >= 3:
                         third_trading_day = data.iloc[2]  # 0-based indexing, so 2 means the 3rd trading day
-                    else:
-                        third_trading_day = None
 
                     if len(data) >= 6:
                         sixth_trading_day = data.iloc[5]
-                    else:
-                        sixth_trading_day = None
                 else:
                     data = stock.history(period="1d")
                 close_price = data['Close'].values[0] if not data.empty else None
@@ -56,10 +56,12 @@ def get_stock_data():
                     latest_price = lastest_data['Close'].values[0] if not data.empty else None
                     third_day_close = third_trading_day['Close'] if third_trading_day is not None else None
                     sixth_trading_day = sixth_trading_day['Close'] if sixth_trading_day is not None else None
+                    next_day = next_day['Close'] if sixth_trading_day is not None else None
                     stock_data[modified_string] = {
                         'date_price': "{:.2f}".format(close_price),
                         'latest_price': "{:.2f}".format(latest_price),
                         'change_percentage': "{:.2f}".format(((latest_price - close_price)/close_price) * 100),
+                        'next_day': "{:.2f}".format(next_day) if next_day is not None else None,
                         'third_trading_day': "{:.2f}".format(third_day_close) if third_day_close is not None else None,
                         'sixth_trading_day': "{:.2f}".format(sixth_trading_day) if sixth_trading_day is not None else None,
                     }
