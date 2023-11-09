@@ -70,6 +70,11 @@ def get_stock_data():
                         stock_data[modified_string]['third_day_change_percentage'] = "{:.2f}".format(
                             ((third_day_close - close_price) / close_price) * 100
                         )
+                    
+                    if stock_data[modified_string]['next_day'] is not None:
+                        stock_data[modified_string]['next_day_percentage_change'] = "{:.2f}".format(
+                            ((next_day - close_price) / close_price) * 100
+                        )
 
                     # Calculate percentage change for 'sixth_trading_day' if it's not None
                     if stock_data[modified_string]['sixth_trading_day'] is not None:
