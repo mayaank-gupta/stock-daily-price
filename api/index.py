@@ -56,7 +56,7 @@ def get_stock_data():
                     latest_price = lastest_data['Close'].values[0] if not data.empty else None
                     third_day_close = third_trading_day['Close'] if third_trading_day is not None else None
                     sixth_trading_day = sixth_trading_day['Close'] if sixth_trading_day is not None else None
-                    next_day = next_day['Close'] if sixth_trading_day is not None else None
+                    next_day = next_day['Close'] if next_day is not None else None
                     stock_data[modified_string] = {
                         'date_price': "{:.2f}".format(close_price),
                         'latest_price': "{:.2f}".format(latest_price),
