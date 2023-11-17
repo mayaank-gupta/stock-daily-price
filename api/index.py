@@ -70,7 +70,7 @@ def get_stock_data():
                         'next_day': "{:.2f}".format(next_day) if next_day is not None else None,
                         'third_trading_day': "{:.2f}".format(third_day_close) if third_day_close is not None else None,
                         'sixth_trading_day': "{:.2f}".format(sixth_trading_day) if sixth_trading_day is not None else None,
-                        'month_trading': "{:.2f}".format(month_trading_session) if month_trading_session is not None else None,
+                        'month_trading_session': "{:.2f}".format(month_trading_session) if month_trading_session is not None else None,
                     }
                     # Calculate percentage change for 'third_trading_day' if it's not None
                     if stock_data[modified_string]['third_trading_day'] is not None:
@@ -89,7 +89,7 @@ def get_stock_data():
                             ((sixth_trading_day - close_price) / close_price) * 100
                         )
                     
-                    if stock_data[modified_string]['month_trading'] is not None:
+                    if stock_data[modified_string]['month_trading_session'] is not None:
                         stock_data[modified_string]['month_trading_change_percentage'] = "{:.2f}".format(
                             ((month_trading_session - close_price) / close_price) * 100
                         )
