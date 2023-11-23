@@ -31,12 +31,15 @@ def get_stock_data():
                 sixth_trading_day = None
                 month_trading_session = None
                 next_day = None
+                lowest_price = None
 
                 if date:
                     start_date = datetime.datetime.strptime(date, "%Y-%m-%d")
                     end_date = start_date + datetime.timedelta(days=35)
                     data = stock.history(start=date, end=end_date)
                     lastest_data = stock.history(period="1d")
+                    lowest_price = yf.download(symbol, start=date)
+                    lowest_price = lowest_price['Close'].min()
 
                     if len(data) >= 2:
                         next_day = data.iloc[1]
@@ -71,6 +74,7 @@ def get_stock_data():
                         'third_trading_day': "{:.2f}".format(third_day_close) if third_day_close is not None else None,
                         'sixth_trading_day': "{:.2f}".format(sixth_trading_day) if sixth_trading_day is not None else None,
                         'month_trading_session': "{:.2f}".format(month_trading_session) if month_trading_session is not None else None,
+                        'lowest_price_from_verdict': "{:.2f}".format(lowest_price) if lowest_price is not None else None,
                     }
                     # Calculate percentage change for 'third_trading_day' if it's not None
                     if stock_data[modified_string]['third_trading_day'] is not None:
@@ -92,6 +96,11 @@ def get_stock_data():
                     if stock_data[modified_string]['month_trading_session'] is not None:
                         stock_data[modified_string]['month_trading_change_percentage'] = "{:.2f}".format(
                             ((month_trading_session - close_price) / close_price) * 100
+                        )
+                    
+                    if stock_data[modified_string]['lowest_price_from_verdict'] is not None:
+                        stock_data[modified_string]['lowest_price_from_verdict_percentage'] = "{:.2f}".format(
+                            ((lowest_price - close_price) / close_price) * 100
                         )
 
                 else:
