@@ -38,9 +38,9 @@ def get_stock_data():
                     end_date = start_date + datetime.timedelta(days=35)
                     data = stock.history(start=date, end=end_date)
                     lastest_data = stock.history(period="1d")
-                    lowest_price = yf.download(symbol, start=date)
-                    lowest_price = lowest_price['Close'].min()
-
+                    lowest_price = stock.history(start=date, interval="1mo")
+                    lowest_price = lowest_price['Low'].min()
+                    
                     if len(data) >= 2:
                         next_day = data.iloc[1]
 
