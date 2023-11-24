@@ -116,6 +116,69 @@ def get_stock_data():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+@app.route('/backtest', methods=['POST'])
+def backtest_data():
+    try:
+        # Get the JSON data from the request
+        data = request.get_json()
+
+        # Check if the 'symbols' key exists in the JSON data
+        if 'symbols' not in data:
+            return jsonify({'error': 'Missing key "symbols" in JSON data'}), 400
+        
+        if 'date' not in data:
+            return jsonify({'error': 'Missing key "date" in JSON data'}), 400
+        
+        if 'fixed_investment' not in data:
+            return jsonify({'error': 'Missing key "fixed_investment" in JSON data'}), 400
+
+        # Retrieve the array of stock symbols from the JSON data
+        symbols = data['symbols']
+        date = data.get('date', None)
+        fixed_investment = data['fixed_investment']
+
+        # Fetch data from Yahoo Finance for each symbol
+        stock_data = {}
+        for symbol in symbols:
+            try:
+                stock = yf.Ticker(symbol)
+                start_date = datetime.datetime.strptime(date, "%Y-%m-%d")
+                end_date = start_date + datetime.timedelta(days=5)
+                data = stock.history(start=date, end=end_date)
+                latest_data = stock.history(period="1d")
+                lowest_price = stock.history(start=date, interval="1mo")
+                lowest_price = lowest_price['Low'].min()
+
+                close_price = data['Close'].values[0] if not data.empty else None
+                number_of_stocks = create_fixed_investment_portfolio({symbol: close_price}, fixed_investment)
+                modified_string  = symbol.replace(".NS", "")
+                latest_price = latest_data['Close'].values[0] if not data.empty else None
+                stock_data[modified_string] = {
+                    'date_price': "{:.2f}".format(close_price),
+                    'latest_price': "{:.2f}".format(latest_price),
+                    'change_percentage': "{:.2f}".format(((latest_price - close_price)/close_price) * 100),
+                    'number_of_stocks': number_of_stocks[modified_string] or 1,
+                    'total_stock_value': "{:.2f}".format(number_of_stocks[modified_string] * close_price) if number_of_stocks[modified_string] is not None else None,
+                    'lowest_price':  "{:.2f}".format(lowest_price) if lowest_price is not None else None,
+                    'lowest_percentage': "{:.2f}".format(((lowest_price - close_price)/close_price) * 100),
+                }
+            except Exception as e:
+                stock_data[symbol] = {'error': str(e)}
+
+        return jsonify(stock_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+def create_fixed_investment_portfolio(stock_prices, fixed_investment):
+    num_stocks = len(stock_prices)
+    # Calculate the investment per stock
+    investment_per_stock = fixed_investment / num_stocks
+    # Calculate the number of shares for each stock
+    portfolio_shares = {stock.replace(".NS", ""): round(investment_per_stock / price) for stock, price in stock_prices.items()}
+    return portfolio_shares
 
 if __name__ == '__main__':
     app.run(debug=True)
