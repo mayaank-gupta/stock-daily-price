@@ -167,8 +167,9 @@ def create_fixed_investment_portfolio(stock_prices, fixed_investment):
     num_stocks = len(stock_prices)
     # Calculate the investment per stock
     investment_per_stock = fixed_investment / num_stocks
+    
     # Calculate the number of shares for each stock
-    portfolio_shares = {stock.replace(".NS", ""): round(investment_per_stock / price) for stock, price in stock_prices.items()}
+    portfolio_shares = {stock.replace(".NS", ""): round(investment_per_stock / price) or 1 for stock, price in stock_prices.items()}
     return portfolio_shares
 
 if __name__ == '__main__':
