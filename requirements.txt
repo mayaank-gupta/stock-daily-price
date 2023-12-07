@@ -1,2 +1,2 @@
 Flask
-yfinance==0.2.30
+yfinance==0.2.31
