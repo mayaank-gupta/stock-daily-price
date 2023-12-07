@@ -21,6 +21,7 @@ def get_stock_data():
         # Retrieve the array of stock symbols from the JSON data
         symbols = data['symbols']
         date = data.get('date', None)
+        
 
         # Fetch data from Yahoo Finance for each symbol
         stock_data = {}
