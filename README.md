@@ -1,1 +1,1 @@
-# stock-daily-price
+# stock-daily
