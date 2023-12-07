@@ -8,7 +8,7 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello, world!'
 
-@app.route('/data/get_stock_data', methods=['POST'])
+@app.route('/get_stock_data', methods=['POST'])
 def get_stock_data():
     try:
         # Get the JSON data from the request
@@ -109,7 +109,7 @@ def get_stock_data():
         return jsonify({'error': str(e)}), 500
     
 
-@app.route('/data/backtest', methods=['POST'])
+@app.route('/backtest', methods=['POST'])
 def backtest_data():
     try:
         # Get the JSON data from the request
