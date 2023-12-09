@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import yfinance as yf
 import datetime
-from datetime import datetime
+import datetime
 import pandas as pd
 
 
@@ -196,7 +196,7 @@ def swing_backtest_data():
         # Retrieve the array of stock symbols from the JSON data
         symbols = inputData['symbols']
         date = inputData.get('start_date', None)
-        end_date = datetime.now().date()
+        end_date = datetime.datetime.now().date()
         # Fetch data from Yahoo Finance for each symbol
         stock_data = {}
         result = {}
