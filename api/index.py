@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 import yfinance as yf
 import datetime
+from datetime import datetime
+import pandas as pd
+
 
 app = Flask(__name__)
 
@@ -171,6 +174,92 @@ def create_fixed_investment_portfolio(stock_prices, fixed_investment):
     # Calculate the number of shares for each stock
     portfolio_shares = {stock.replace(".NS", ""): round(investment_per_stock / price) or 1 for stock, price in stock_prices.items()}
     return portfolio_shares
+
+@app.route('/swing-backtest', methods=['POST'])
+def swing_backtest_data():
+    try:
+        # Get the JSON data from the request
+        inputData = request.get_json()
+        # Check if the 'symbols' key exists in the JSON data
+        if 'symbols' not in inputData:
+            return jsonify({'error': 'Missing key "symbols" in JSON data'}), 400
+        
+        if 'stop_loss_percent' not in inputData:
+            return jsonify({'error': 'Missing key "stop_loss_percent" in JSON data'}), 400
+        
+        if 'target_percent' not in inputData:
+            return jsonify({'error': 'Missing key "target_percent" in JSON data'}), 400
+        
+        if 'start_date' not in inputData:
+            return jsonify({'error': 'Missing key "start_date" in JSON data'}), 400
+
+        # Retrieve the array of stock symbols from the JSON data
+        symbols = inputData['symbols']
+        date = inputData.get('start_date', None)
+        end_date = datetime.now().date()
+        # Fetch data from Yahoo Finance for each symbol
+        stock_data = {}
+        result = {}
+        for symbol in symbols:
+            try:
+                data = yf.download(symbol, start=date, end=end_date)
+                first_date = pd.Timestamp(data.index[0])
+                latest_data = data.iloc[-1]
+                # Initialize variables for tracking positions
+                position_opened = False
+                entry_price = 0
+                stop_loss_percent = inputData['stop_loss_percent']
+                target_percent = inputData['target_percent']
+                stop_loss_price = 0
+                target_price = 0
+
+                for i in range(1, len(data)):
+                    current_low = data['Low'][i]
+                    if not position_opened:
+                        # Check if the current day meets the entry conditions
+                        # For example, entering if the close price increases by a certain percentage
+                        entry_price = data['Close'][0]
+                        stop_loss_price = entry_price * (1 - stop_loss_percent / 100)
+                        target_price = entry_price * (1 + target_percent / 100)
+                        position_opened = True
+                    else:
+                        # Check if the stop loss or target is hit
+                        if current_low <= stop_loss_price:
+                            position_opened = False
+                            result = {
+                                'entry_date': first_date.strftime('%Y-%m-%d'),
+                                'entry_price': "{:.2f}".format(entry_price),
+                                'exit_date': pd.Timestamp(data.index[i]).strftime('%Y-%m-%d'),
+                                'exit_price': "{:.2f}".format(stop_loss_price),
+                                'result': 'Hit',
+                                'profit': "{:.2f}".format(stop_loss_price - entry_price),
+                                'stop_loss': "{:.2f}".format(stop_loss_price),
+                                'target': "{:.2f}".format(target_price),
+                                'latest_price': "{:.2f}".format(latest_data['Close'])
+                            }
+                            break
+                            
+                        else:
+                            result = {
+                                'entry_date': first_date.strftime('%Y-%m-%d'),
+                                'entry_price': "{:.2f}".format(entry_price),
+                                'exit_date': None,
+                                'exit_price': None,
+                                'result': 'Open',
+                                'profit': "{:.2f}".format(latest_data['Close'] - entry_price),
+                                'stop_loss': "{:.2f}".format(stop_loss_price),
+                                'target': "{:.2f}".format(target_price),
+                                'latest_price': "{:.2f}".format(latest_data['Close'])
+                            }
+
+                stock_data[symbol.replace(".NS", "")] = result
+            except Exception as e:
+                stock_data[symbol.replace(".NS", "")] = {'error': str(e)}
+
+        return jsonify(stock_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
