@@ -215,6 +215,7 @@ def swing_backtest_data():
 
                 for i in range(1, len(data)):
                     current_low = data['Low'][i]
+                    current_high = data['High'][i]
                     if not position_opened:
                         # Check if the current day meets the entry conditions
                         # For example, entering if the close price increases by a certain percentage
@@ -238,6 +239,10 @@ def swing_backtest_data():
                                 'latest_price': "{:.2f}".format(latest_data['Close'])
                             }
                             break
+
+                        elif current_high >= target_price:
+                            target_price = current_high * (1 + target_percent / 100)
+                            stop_loss_price = current_high * (1 - stop_loss_percent / 100)
                             
                         else:
                             result = {
