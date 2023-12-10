@@ -241,8 +241,8 @@ def swing_backtest_data():
                             break
 
                         elif current_high >= target_price:
-                            target_price = current_high * (1 + target_percent / 100)
-                            stop_loss_price = current_high * (1 - stop_loss_percent / 100)
+                            target_price = target_price * (1 + target_percent / 100)
+                            stop_loss_price = target_price * (1 - stop_loss_percent / 100)
                             
                         else:
                             result = {
