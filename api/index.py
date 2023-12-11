@@ -212,6 +212,7 @@ def swing_backtest_data():
                 target_percent = inputData['target_percent']
                 stop_loss_price = 0
                 target_price = 0
+                trailing_tracker = 0
 
                 for i in range(1, len(data)):
                     current_low = data['Low'][i]
@@ -241,7 +242,8 @@ def swing_backtest_data():
                             break
 
                         elif current_high >= target_price:
-                            stop_loss_price = target_price
+                            stop_loss_price = entry_price if trailing_tracker == 0 else target_price
+                            trailing_tracker = 1
                             target_price = target_price * (1 + target_percent / 100) 
                             
                         else:
