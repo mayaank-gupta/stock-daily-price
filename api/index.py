@@ -239,6 +239,10 @@ def swing_backtest_data():
                                 'latest_price': "{:.2f}".format(latest_data['Close'])
                             }
                             break
+
+                        elif current_high >= target_price:
+                            stop_loss_price = target_price
+                            target_price = target_price * (1 + target_percent / 100) 
                             
                         else:
                             result = {
