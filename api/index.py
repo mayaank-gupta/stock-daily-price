@@ -141,7 +141,7 @@ def backtest_data():
                 end_date = start_date + datetime.timedelta(days=5)
                 data = stock.history(start=date, end=end_date)
                 latest_data = stock.history(period="1d")
-                lowest_price = stock.history(start=date, interval="1wk")
+                lowest_price = stock.history(start=date, interval="1d")
                 high_price = lowest_price['High'].max()
                 date_of_high = lowest_price[lowest_price['High'] == high_price].index[0]
                 lowest_price = lowest_price['Low'].min()
