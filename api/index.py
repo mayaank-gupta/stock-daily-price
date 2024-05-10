@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import yfinance as yf
 import datetime
-import datetime
 import pandas as pd
 
 
@@ -143,6 +142,8 @@ def backtest_data():
                 data = stock.history(start=date, end=end_date)
                 latest_data = stock.history(period="1d")
                 lowest_price = stock.history(start=date, interval="1wk")
+                high_price = lowest_price['High'].max()
+                date_of_high = lowest_price[lowest_price['High'] == high_price].index[0]
                 lowest_price = lowest_price['Low'].min()
 
                 close_price = data['Close'].values[0] if not data.empty else None
@@ -157,6 +158,8 @@ def backtest_data():
                     'total_stock_value': "{:.2f}".format(number_of_stocks[modified_string] * close_price) if number_of_stocks[modified_string] is not None else None,
                     'lowest_price':  "{:.2f}".format(lowest_price) if lowest_price is not None else None,
                     'lowest_percentage': "{:.2f}".format(((lowest_price - close_price)/close_price) * 100),
+                    'high_price': "{:.2f}".format(high_price) if high_price is not None else None,
+                    'date_of_high': date_of_high.date() if date_of_high is not None else None
                 }
             except Exception as e:
                 stock_data[symbol] = {'error': str(e)}
@@ -217,6 +220,8 @@ def swing_backtest_data():
                 for i in range(1, len(data)):
                     current_low = data['Low'][i]
                     current_high = data['High'][i]
+                    print("stp", stop_loss_price)
+                    print(target_price)
                     if not position_opened:
                         # Check if the current day meets the entry conditions
                         # For example, entering if the close price increases by a certain percentage
