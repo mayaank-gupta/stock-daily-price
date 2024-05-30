@@ -131,6 +131,7 @@ def backtest_data():
         symbols = data['symbols']
         date = data.get('date', None)
         fixed_investment = data['fixed_investment']
+        target_percentage = data.get('target_percentage', None)
 
         # Fetch data from Yahoo Finance for each symbol
         stock_data = {}
@@ -147,6 +148,8 @@ def backtest_data():
                 lowest_price = lowest_price['Low'].min()
 
                 close_price = data['Close'].values[0] if not data.empty else None
+                target_price = close_price * (target_percentage / 100) if target_percentage else None
+                target_hit = high_price > target_price if target_price is not None else False
                 number_of_stocks = create_fixed_investment_portfolio({symbol: close_price}, fixed_investment)
                 modified_string  = symbol.replace(".NS", "")
                 latest_price = latest_data['Close'].values[0] if not data.empty else None
@@ -159,7 +162,8 @@ def backtest_data():
                     'lowest_price':  "{:.2f}".format(lowest_price) if lowest_price is not None else None,
                     'lowest_percentage': "{:.2f}".format(((lowest_price - close_price)/close_price) * 100),
                     'high_price': "{:.2f}".format(high_price) if high_price is not None else None,
-                    'date_of_high': date_of_high.date() if date_of_high is not None else None
+                    'date_of_high': date_of_high.date() if date_of_high is not None else None,
+                    'target_hit': bool(target_hit)
                 }
             except Exception as e:
                 stock_data[symbol] = {'error': str(e)}
