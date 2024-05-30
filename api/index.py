@@ -148,7 +148,7 @@ def backtest_data():
                 lowest_price = lowest_price['Low'].min()
 
                 close_price = data['Close'].values[0] if not data.empty else None
-                target_price = close_price * (target_percentage / 100) if target_percentage else None
+                target_price = close_price * (1 + target_percentage / 100) if target_percentage else None
                 target_hit = high_price > target_price if target_price is not None else False
                 number_of_stocks = create_fixed_investment_portfolio({symbol: close_price}, fixed_investment)
                 modified_string  = symbol.replace(".NS", "")

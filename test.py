@@ -5,13 +5,13 @@ ticker_symbol = "^NSEBANK"
 
 # Set the start and end dates for historical data
 start_date = "2022-01-05"
-end_date = "2024-05-05"
+end_date = "2024-05-28"
 
 # Fetch historical data
 historical_data = yf.download(ticker_symbol,
                               start=start_date,
                               end=end_date,
-                              interval="1wk")
+                              interval="1mo")
 
 # Calculate the average of open and close prices
 historical_data['Average_Open_Close'] = (historical_data['Open'] +
@@ -35,7 +35,7 @@ average_difference = historical_data['Open_Close_Difference'].mean()
 # Assuming historical_data is your DataFrame
 
 # Count occurrences where the difference is more than 1000
-count_difference_gt_1000 = (historical_data['Open_Close_Difference'] > 1600).sum()
+count_difference_gt_1000 = (historical_data['Open_Close_Difference'] > 3000).sum()
 
 # Display the count
 print("Number of times the difference is more than 1000:", count_difference_gt_1000)
