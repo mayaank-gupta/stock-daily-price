@@ -15,6 +15,7 @@ def hello_world():
 @app.route('/get-reversal-data',  methods=['POST'])
 def get_reversal_points():
     data = request.get_json()
+    
     if 'ticker' not in data:
             return jsonify({'error': 'Missing key "symbols" in JSON data'}), 400
 
