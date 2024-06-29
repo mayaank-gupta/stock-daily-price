@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import yfinance as yf
 import datetime
 import pandas as pd
+from utils import analyze_stock_reversals, find_stocks_with_volume_trend
+
 
 
 app = Flask(__name__)
@@ -9,6 +11,39 @@ app = Flask(__name__)
 @app.route('/')
 def hello_world():
     return 'Hello, world!'
+
+@app.route('/get-reversal-data',  methods=['POST'])
+def get_reversal_points():
+    data = request.get_json()
+
+    if 'ticker' not in data:
+            return jsonify({'error': 'Missing key "symbols" in JSON data'}), 400
+
+    ticker = data['ticker']
+    start_date = data.get('start_date', "2024-01-01")
+    volume_start_date = data.get('volume_start_date', "2023-01-01")
+    tolerance_percentage = float(data.get('tolerance_percentage', 3.0))
+    num_reversals = int(data.get('num_reversals', 3))
+    today_date = datetime.date.today()
+    current_date = today_date.strftime('%Y-%m-%d')
+    volume_analysis = find_stocks_with_volume_trend(ticker, volume_start_date, today_date)
+
+    try:
+        reversal_points, sma_values = analyze_stock_reversals(ticker, start_date, current_date, tolerance_percentage, num_reversals)
+        response = {
+            'ticker': ticker,
+            'reversal_points': [[round(point[0], 2), point[1]] for point in reversal_points],
+            '20SMA': "{:.2f}".format(sma_values['20SMA']),
+            '50SMA': "{:.2f}".format(sma_values['50SMA']),
+            '200SMA': "{:.2f}".format(sma_values['200SMA']),
+            'avg_volume_uptrend': "{:.2f}".format(volume_analysis['avg_volume_uptrend']),
+            'avg_volume_downtrend': "{:.2f}".format(volume_analysis['avg_volume_downtrend']),
+            'higher_volume_uptrend': bool(volume_analysis['higher_volume_uptrend']),
+            'percentage_higher': "{:.2f}".format(volume_analysis['percentage_higher'])
+        }
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 @app.route('/get_stock_data', methods=['POST'])
 def get_stock_data():

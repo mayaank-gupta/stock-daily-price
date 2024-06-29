@@ -1,46 +1,34 @@
 import yfinance as yf
 
-# Define the ticker symbol for BANKNIFTY
-ticker_symbol = "^NSEBANK"
+def analyze_stock_data(ticker_symbol, start_date="2021-01-01", end_date="2024-05-31"):
+    # Fetch historical data
+    historical_data = yf.download(ticker_symbol, start=start_date, end=end_date, interval="1d")
+    
+    # Check if data is fetched successfully
+    if historical_data.empty:
+        print("No data fetched for the given ticker symbol.")
+        return
+    
+    # Calculate the average of open and close prices
+    historical_data['Average_Open_Close'] = (historical_data['Open'] + historical_data['Close']) / 2
+    
+    # Calculate the difference between open and close prices
+    historical_data['Open_Close_Difference'] = (historical_data['Open'] - historical_data['Close']).abs()
+    
+    # Calculate the average of the difference between open and close prices
+    average_difference = historical_data['Open_Close_Difference'].mean()
+    
+    # Count occurrences where the difference is more than 1500
+    count_difference_gt_1500 = (historical_data['Open_Close_Difference'] > 1500).sum()
+    
+    # Return the computed values
+    return {
+        'average_difference': average_difference
+    }
 
-# Set the start and end dates for historical data
-start_date = "2022-01-05"
-end_date = "2024-05-28"
+# Example usage
+ticker_symbol = "DELHIVERY.NS"
+result = analyze_stock_data(ticker_symbol)
 
-# Fetch historical data
-historical_data = yf.download(ticker_symbol,
-                              start=start_date,
-                              end=end_date,
-                              interval="1mo")
-
-# Calculate the average of open and close prices
-historical_data['Average_Open_Close'] = (historical_data['Open'] +
-                                         historical_data['Close']) / 2
-
-historical_data['Difference'] = (historical_data['Open'] +
-                                         historical_data['Close']) / 2
-
-# Calculate the difference between open and close prices
-historical_data['Open_Close_Difference'] = (historical_data[
-    'Open'] - historical_data['Close']).abs()
-
-# Display the result
-print(historical_data[[
-    'Open', 'Close', 'Average_Open_Close', 'Open_Close_Difference'
-]])
-
-
-# Calculate the average of the difference between open and close prices
-average_difference = historical_data['Open_Close_Difference'].mean()
-# Assuming historical_data is your DataFrame
-
-# Count occurrences where the difference is more than 1000
-count_difference_gt_1000 = (historical_data['Open_Close_Difference'] > 3000).sum()
-
-# Display the count
-print("Number of times the difference is more than 1000:", count_difference_gt_1000)
-
-
-# Display the correct result
-print(f'Average Open-Close Difference: {average_difference:.2f}')
-
+# Print the result
+print(result)
