@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import yfinance as yf
 import datetime
 import pandas as pd
-from utils import analyze_stock_reversals, find_stocks_with_volume_trend
+from utilities import analyze_stock_reversals, find_stocks_with_volume_trend
 
 
 
