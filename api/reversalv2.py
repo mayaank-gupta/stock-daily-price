@@ -63,7 +63,7 @@ def get_reversal_points():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     tolerance_percentage = float(request.args.get('tolerance_percentage', 3.0))
-    num_reversals = int(request.args.get('num_reversals', 3))
+    num_reversals = int(request.args.get('num_reversals', 2))
 
     try:
         reversal_points, sma_values = analyze_stock_reversals(ticker, start_date, end_date, tolerance_percentage, num_reversals)
